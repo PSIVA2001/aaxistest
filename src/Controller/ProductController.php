@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use App\Services\ProductService;
+use App\Service\ProductService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,7 +42,7 @@ class ProductController extends AbstractController
                 return new JsonResponse($response['failed_records'], Response::HTTP_BAD_REQUEST);
             }
 
-            $status = empty($response['failed_records']) ? Response::HTTP_OK : Response::HTTP_MULTI_STATUS;
+            $status = empty($response['failed_records']) ? Response::HTTP_CREATED : Response::HTTP_MULTI_STATUS;
             return new JsonResponse($response, $status);
 
         } catch (\Exception $e) {
@@ -58,10 +58,7 @@ class ProductController extends AbstractController
             $data = json_decode($request->getContent(), true);
             if (empty($data)) {
                 throw new \Exception('Invalid payload. JSON decoded to an empty array.');
-            } else if (!is_array($data)) {
-                throw new \Exception('Invalid payload. JSON must be of type array.');
             }
-
             $result = $productUpdateService->updateProducts($data);
             $successRecords = $result['successRecords'];
             $failedRecords = $result['failedRecords'];
@@ -76,7 +73,7 @@ class ProductController extends AbstractController
                 $response['failed_records'] = $failedRecords;
             }
 
-            $status = empty($failedRecords) ? Response::HTTP_OK : Response::HTTP_MULTI_STATUS;
+            $status = empty($failedRecords) ? Response::HTTP_CREATED : Response::HTTP_MULTI_STATUS;
 
             return new JsonResponse($response, $status);
         } catch (\Exception $e) {
